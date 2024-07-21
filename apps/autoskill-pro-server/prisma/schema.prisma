@@ -1,0 +1,99 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model TestTaker {
+  id        String             @id @default(cuid())
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  name      String?
+  email     String?
+  role      EnumTestTakerRole?
+  scores    Score[]
+  answers   Answer[]
+}
+
+model Question {
+  id        String                 @id @default(cuid())
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  content   String?
+  typeField EnumQuestionTypeField?
+  marks     Int?
+  test      Test?                  @relation(fields: [testId], references: [id])
+  testId    String?
+  answers   Answer[]
+  options   Option[]
+}
+
+model Score {
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  score       Int?
+  testTaker   TestTaker? @relation(fields: [testTakerId], references: [id])
+  testTakerId String?
+  test        Test?      @relation(fields: [testId], references: [id])
+  testId      String?
+}
+
+model Test {
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  title       String?
+  description String?
+  totalMarks  Int?
+  questions   Question[]
+  scores      Score[]
+  answers     Answer[]
+}
+
+model Answer {
+  id            String     @id @default(cuid())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  answerContent String?
+  score         Int?
+  testTaker     TestTaker? @relation(fields: [testTakerId], references: [id])
+  testTakerId   String?
+  question      Question?  @relation(fields: [questionId], references: [id])
+  questionId    String?
+  test          Test?      @relation(fields: [testId], references: [id])
+  testId        String?
+}
+
+model Option {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  text       String?
+  isCorrect  Boolean?
+  question   Question? @relation(fields: [questionId], references: [id])
+  questionId String?
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  roles     Json
+}
+
+enum EnumTestTakerRole {
+  Option1
+}
+
+enum EnumQuestionTypeField {
+  Option1
+}
